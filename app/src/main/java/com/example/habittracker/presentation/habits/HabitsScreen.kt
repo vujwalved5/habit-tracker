@@ -1,121 +1,69 @@
 package com.example.habittracker.presentation.habits
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.em
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.habittracker.domain.model.Habit
 import com.example.habittracker.presentation.habit_list.HabitListViewModel
 import com.example.habittracker.ui.theme.*
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HabitsScreen(
     onAddHabit: () -> Unit,
     onEditHabit: (Long) -> Unit,
+    onHabitClick: (Long) -> Unit,
     viewModel: HabitListViewModel = hiltViewModel()
 ) {
     val habits by viewModel.habits.collectAsState()
-    val scope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
-        containerColor = CanvasBlack,
         topBar = {
             TopAppBar(
-                title = { 
-                    Text(
-                        "Your habits".uppercase(), 
-                        fontSize = 9.sp, 
-                        color = TextDim, 
-                        letterSpacing = 0.1.em,
-                        fontWeight = FontWeight.Normal
-                    ) 
-                },
+                title = { Text("Your Habits", style = MaterialTheme.typography.titleLarge) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
         },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddHabit,
-                containerColor = AmberOchre,
-                contentColor = SilverWhite,
-                shape = SharpFab,
-                modifier = Modifier.size(56.dp)
+                containerColor = Accent,
+                contentColor = Color.Black,
+                shape = FabShape
             ) {
-                Icon(Icons.Rounded.Add, contentDescription = "Add Habit", modifier = Modifier.size(18.dp))
+                Icon(Icons.Default.Add, contentDescription = "Add Habit")
             }
-        },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        }
     ) { padding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(
-                items = habits,
-                key = { it.id }
-            ) { habit ->
-                val dismissState = rememberSwipeToDismissBoxState(
-                    confirmValueChange = {
-                        if (it == SwipeToDismissBoxValue.EndToStart) {
-                            viewModel.deleteHabit(habit)
-                            scope.launch {
-                                val result = snackbarHostState.showSnackbar(
-                                    message = "Habit deleted",
-                                    actionLabel = "Undo"
-                                )
-                                if (result == SnackbarResult.ActionPerformed) {
-                                    viewModel.addHabit(habit)
-                                }
-                            }
-                            true
-                        } else false
-                    }
-                )
-
-                SwipeToDismissBox(
-                    state = dismissState,
-                    backgroundContent = {
-                        val color = if (dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
-                            DangerRed
-                        } else Color.Transparent
-                        
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clip(SharpCard)
-                                .background(color)
-                                .padding(horizontal = 20.dp),
-                            contentAlignment = Alignment.CenterEnd
-                        ) {
-                            Icon(Icons.Outlined.Delete, contentDescription = "Delete", tint = SilverWhite)
-                        }
-                    },
-                    enableDismissFromStartToEnd = false
-                ) {
-                    HabitRow(
+        if (habits.isEmpty()) {
+            EmptyState(onAddHabit)
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(habits) { habit ->
+                    HabitListRow(
                         habit = habit,
+                        onClick = { onHabitClick(habit.id) },
                         onEdit = { onEditHabit(habit.id) }
                     )
                 }
@@ -125,50 +73,64 @@ fun HabitsScreen(
 }
 
 @Composable
-fun HabitRow(habit: Habit, onEdit: () -> Unit) {
+fun HabitListRow(habit: Habit, onClick: () -> Unit, onEdit: () -> Unit) {
     Card(
-        shape = SharpCard,
-        colors = CardDefaults.cardColors(containerColor = TileDeep),
-        modifier = Modifier.fillMaxWidth().border(0.5.dp, BorderSubtle, SharpCard)
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        shape = CardShape,
+        colors = CardDefaults.cardColors(containerColor = Surface),
+        border = androidx.compose.foundation.BorderStroke(0.5.dp, Border)
     ) {
         Row(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(42.dp)
-                    .background(SurfaceSlate, SharpIcon),
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(InputGray),
                 contentAlignment = Alignment.Center
             ) {
                 Text(habit.icon, fontSize = 20.sp)
             }
-            
-            Spacer(modifier = Modifier.width(16.dp))
-            
+            Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(habit.name, fontWeight = FontWeight.Medium, color = SilverWhite, fontSize = 15.sp)
-                Text(habit.frequency, fontSize = 11.sp, color = TextMuted)
+                Text(text = habit.name, style = MaterialTheme.typography.titleMedium)
+                Text(text = habit.frequency, style = MaterialTheme.typography.labelSmall)
             }
-            
-            Box(
-                modifier = Modifier
-                    .background(AmberOchre.copy(alpha = 0.15f), SharpTiny)
-                    .padding(horizontal = 6.dp, vertical = 2.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("🔥", fontSize = 10.sp)
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("${habit.currentStreak}", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = AmberOchre)
-                }
-            }
-            
-            Spacer(modifier = Modifier.width(8.dp))
             
             IconButton(onClick = onEdit) {
-                Icon(Icons.Outlined.Edit, contentDescription = "Edit", tint = TextDim, modifier = Modifier.size(20.dp))
+                Icon(Icons.Default.Edit, contentDescription = "Edit", tint = Primary, modifier = Modifier.size(20.dp))
             }
+        }
+    }
+}
+
+@Composable
+fun EmptyState(onAddHabit: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text("🎯", fontSize = 64.sp)
+        Spacer(modifier = Modifier.height(16.dp))
+        Text("No habits yet", style = MaterialTheme.typography.headlineSmall)
+        Text(
+            "Create your first habit to get started",
+            style = MaterialTheme.typography.bodyLarge,
+            color = TextSecondary,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        Button(
+            onClick = onAddHabit,
+            shape = ButtonShape,
+            colors = ButtonDefaults.buttonColors(containerColor = Primary)
+        ) {
+            Text("Add Habit")
         }
     }
 }

@@ -29,9 +29,10 @@ class SampleDataInitializer @Inject constructor(
                 if (!alreadySeeded) {
                     val existingHabits = repository.getAllHabits().first()
                     val habitsToSeed = listOf(
-                        Habit(name = "Drink Water", icon = "💧", frequency = "Daily", reminderTime = "08:00"),
-                        Habit(name = "Exercise", icon = "🏃", frequency = "Daily", reminderTime = "07:00"),
-                        Habit(name = "Read", icon = "📖", frequency = "Daily", reminderTime = "21:00")
+                        Habit(name = "Drink Water", icon = "💧", frequency = "Daily", reminderTime = "08:00", duration = 5),
+                        Habit(name = "Exercise", icon = "🏃", frequency = "Daily", reminderTime = "07:00", duration = 30),
+                        Habit(name = "Read", icon = "📖", frequency = "Daily", reminderTime = "21:00", duration = 20),
+                        Habit(name = "Meditate", icon = "🧘", frequency = "Daily", reminderTime = "06:00", duration = 10)
                     )
                     
                     var seededAny = false
@@ -47,7 +48,7 @@ class SampleDataInitializer @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                // Fallback or log error
+                android.util.Log.e("SampleDataInitializer", "Error seeding data", e)
             }
         }
     }

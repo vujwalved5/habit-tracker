@@ -11,5 +11,7 @@ data class HabitEntity(
     val icon: String = "✨",
     val frequency: String, // e.g., "DAILY"
     val reminderTime: String?, // e.g., "08:00"
+    val duration: Int = 10, // minutes
+    val category: String? = null,
     val createdAt: Long = System.currentTimeMillis()
 )

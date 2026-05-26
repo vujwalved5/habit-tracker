@@ -10,6 +10,8 @@ import kotlinx.serialization.Serializable
 
 sealed class Screen {
     @Serializable
+    object Onboarding : Screen()
+    @Serializable
     object Today : Screen()
     @Serializable
     object Habits : Screen()
@@ -20,6 +22,14 @@ sealed class Screen {
 
     @Serializable
     data class AddEditHabit(val habitId: Long? = null) : Screen()
+
+    @Serializable
+    data class HabitDetail(val habitId: Long) : Screen()
+
+    @Serializable
+    object Notifications : Screen()
+    @Serializable
+    object Appearance : Screen()
 }
 
 data class BottomNavItem(

@@ -22,6 +22,11 @@ class SettingsViewModel @Inject constructor(
 
     private val BACKGROUND_STYLE_KEY = stringPreferencesKey("background_style")
     private val BACKGROUND_URI_KEY = stringPreferencesKey("background_uri")
+    private val ONBOARDING_COMPLETED_KEY = androidx.datastore.preferences.core.booleanPreferencesKey("onboarding_completed")
+
+    val onboardingCompleted: StateFlow<Boolean> = dataStore.data
+        .map { it[ONBOARDING_COMPLETED_KEY] ?: false }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     val selectedBackgroundStyle: StateFlow<BackgroundStyle> = dataStore.data
         .map { preferences ->
@@ -52,6 +57,12 @@ class SettingsViewModel @Inject constructor(
                 preferences[BACKGROUND_URI_KEY] = uri
                 preferences[BACKGROUND_STYLE_KEY] = BackgroundStyle.Custom.label
             }
+        }
+    }
+
+    fun completeOnboarding() {
+        viewModelScope.launch {
+            dataStore.edit { it[ONBOARDING_COMPLETED_KEY] = true }
         }
     }
 }

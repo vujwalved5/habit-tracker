@@ -6,6 +6,8 @@ data class Habit(
     val icon: String = "✨",
     val frequency: String,
     val reminderTime: String?,
+    val duration: Int = 10,
+    val category: String? = null,
     val isDoneToday: Boolean = false,
     val currentStreak: Int = 0,
     val completedDates: List<String> = emptyList(),

@@ -24,11 +24,16 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.habittracker.presentation.add_habit.AddHabitScreen
-import com.example.habittracker.presentation.habit_list.HabitListScreen
+import com.example.habittracker.presentation.onboarding.OnboardingScreen
+import com.example.habittracker.presentation.home.HomeScreen
+import com.example.habittracker.presentation.habit_detail.HabitDetailScreen
 import com.example.habittracker.presentation.habits.HabitsScreen
 import com.example.habittracker.presentation.profile.ProfileScreen
-import com.example.habittracker.presentation.habit_list.StatsContent
+import com.example.habittracker.presentation.stats.StatsScreen
+import com.example.habittracker.presentation.settings.NotificationSettingsScreen
+import com.example.habittracker.presentation.settings.AppearanceScreen
 import com.example.habittracker.presentation.habit_list.HabitListViewModel
+import com.example.habittracker.presentation.settings.SettingsViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.habittracker.presentation.components.AppBackground
 import com.example.habittracker.ui.theme.*
@@ -38,6 +43,9 @@ fun HabitNavGraph() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
+    
+    val settingsViewModel: SettingsViewModel = hiltViewModel()
+    val onboardingCompleted by settingsViewModel.onboardingCompleted.collectAsState()
 
     val showBottomBar = bottomNavItems.any { item ->
         currentDestination?.hierarchy?.any { it.hasRoute(item.route::class) } == true
@@ -47,15 +55,16 @@ fun HabitNavGraph() {
         Scaffold(
             containerColor = Color.Transparent,
             bottomBar = {
-                if (showBottomBar) {
+                if (showBottomBar && onboardingCompleted) {
+                    val outlineColor = MaterialTheme.colorScheme.outline
                     NavigationBar(
-                        containerColor = CanvasBlack,
+                        containerColor = MaterialTheme.colorScheme.surface,
                         tonalElevation = 0.dp,
                         modifier = Modifier
                             .height(64.dp)
                             .drawBehind {
                                 drawLine(
-                                    color = BorderSubtle,
+                                    color = outlineColor,
                                     start = Offset(0f, 0f),
                                     end = Offset(size.width, 0f),
                                     strokeWidth = 0.5.dp.toPx()
@@ -90,10 +99,10 @@ fun HabitNavGraph() {
                                     }
                                 },
                                 colors = NavigationBarItemDefaults.colors(
-                                    selectedIconColor = AmberOchre,
-                                    selectedTextColor = AmberOchre,
-                                    unselectedIconColor = TextDim,
-                                    unselectedTextColor = TextDim,
+                                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                                     indicatorColor = Color.Transparent
                                 )
                             )
@@ -104,28 +113,58 @@ fun HabitNavGraph() {
         ) { padding ->
             NavHost(
                 navController = navController,
-                startDestination = Screen.Today,
+                startDestination = if (onboardingCompleted) Screen.Today else Screen.Onboarding,
                 modifier = Modifier.padding(padding)
             ) {
+                composable<Screen.Onboarding> {
+                    OnboardingScreen(
+                        onGetStarted = {
+                            settingsViewModel.completeOnboarding()
+                            navController.navigate(Screen.Today) {
+                                popUpTo(Screen.Onboarding) { inclusive = true }
+                            }
+                        }
+                    )
+                }
                 composable<Screen.Today> {
-                    HabitListScreen(
+                    HomeScreen(
                         onAddHabit = {
                             navController.navigate(Screen.AddEditHabit())
+                        },
+                        onHabitClick = { id ->
+                            navController.navigate(Screen.HabitDetail(id))
                         }
                     )
                 }
                 composable<Screen.Habits> {
                     HabitsScreen(
                         onAddHabit = { navController.navigate(Screen.AddEditHabit()) },
-                        onEditHabit = { id -> navController.navigate(Screen.AddEditHabit(id)) }
+                        onEditHabit = { id -> navController.navigate(Screen.AddEditHabit(id)) },
+                        onHabitClick = { id -> navController.navigate(Screen.HabitDetail(id)) }
+                    )
+                }
+                composable<Screen.HabitDetail> { backStackEntry ->
+                    val route = backStackEntry.toRoute<Screen.HabitDetail>()
+                    HabitDetailScreen(
+                        habitId = route.habitId,
+                        onBack = { navController.popBackStack() },
+                        onEdit = { id -> navController.navigate(Screen.AddEditHabit(id)) }
                     )
                 }
                 composable<Screen.Progress> {
-                    val viewModel: HabitListViewModel = hiltViewModel()
-                    StatsContent(viewModel = viewModel)
+                    StatsScreen(onBack = { navController.popBackStack() })
                 }
                 composable<Screen.Profile> {
-                    ProfileScreen()
+                    ProfileScreen(
+                        onNotificationsClick = { navController.navigate(Screen.Notifications) },
+                        onAppearanceClick = { navController.navigate(Screen.Appearance) }
+                    )
+                }
+                composable<Screen.Notifications> {
+                    NotificationSettingsScreen(onBack = { navController.popBackStack() })
+                }
+                composable<Screen.Appearance> {
+                    AppearanceScreen(onBack = { navController.popBackStack() })
                 }
                 composable<Screen.AddEditHabit> { backStackEntry ->
                     val route = backStackEntry.toRoute<Screen.AddEditHabit>()

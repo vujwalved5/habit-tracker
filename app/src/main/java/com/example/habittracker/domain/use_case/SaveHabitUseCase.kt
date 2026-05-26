@@ -7,13 +7,15 @@ import javax.inject.Inject
 class SaveHabitUseCase @Inject constructor(
     private val repository: HabitRepository
 ) {
-    suspend operator fun invoke(name: String, icon: String, frequency: String, reminderTime: String?, id: Long = 0) {
+    suspend operator fun invoke(name: String, icon: String, frequency: String, reminderTime: String?, duration: Int, category: String? = null, id: Long = 0) {
         val habit = Habit(
             id = id,
             name = name,
             icon = icon,
             frequency = frequency,
-            reminderTime = reminderTime
+            reminderTime = reminderTime,
+            duration = duration,
+            category = category
         )
         repository.insertHabit(habit)
     }

@@ -2,27 +2,28 @@ package com.example.habittracker.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Core backgrounds — each screen layer gets its own depth
-val CanvasBlack = Color(0xFF080808)      // app background
-val TileDeep = Color(0xFF0D0D0D)         // default card
-val TileAlt = Color(0xFF0A0A0A)          // alternate card
-val TileDone = Color(0xFF0D0900)         // completed habit card
-val TileWarn = Color(0xFF0A0800)         // warning card
-val SurfaceSlate = Color(0xFF151515)     // icon backgrounds
-val BorderSubtle = Color(0xFF1E1E1E)     // default borders
-val BorderDone = Color(0xFF2A1F00)       // completed card border
+// Premium Habit Tracker Palette
+val Primary = Color(0xFF6366F1)       // Indigo 500
+val PrimaryDark = Color(0xFF4F46E5)   // Indigo 600
+val Accent = Color(0xFFFBBF24)        // Amber 400
+val Success = Color(0xFF10B981)       // Emerald 500
+val Danger = Color(0xFFDC2626)        // Red 600
+val Background = Color(0xFFFAFAFA)    // Gray 50
+val Surface = Color(0xFFFFFFFF)       // White
+val Border = Color(0xFFE5E7EB)        // Gray 200
 
-// Accent
-val AmberOchre = Color(0xFFD97706)       // primary accent
-val AmberMid = Color(0xFFB45309)         // mid intensity heatmap
-val AmberLow = Color(0xFF92400E)         // low intensity heatmap
-val AmberFaint = Color(0xFF1A1200)       // amber tint background
+// Text Colors
+val TextPrimary = Color(0xFF1F2937)    // Gray 900
+val TextSecondary = Color(0xFF6B7280)  // Gray 500
+val TextTertiary = Color(0xFF9CA3AF)   // Gray 400
 
-// Text
-val SilverWhite = Color(0xFFF3F3F3)      // primary text
-val TextMuted = Color(0xFF8E8E93)        // secondary text
-val TextDim = Color(0xFF444444)          // section labels
-val TextHint = Color(0xFF555555)         // hints, placeholders
+// Additional Semantic Colors
+val LightGreen = Color(0xFFF0FDF4)
+val InputGray = Color(0xFFF3F4F6)
 
-// Semantic
-val DangerRed = Color(0xFFEF4444)        // delete actions
+// Dark Mode Palette (approximation)
+val DarkBackground = Color(0xFF111827)
+val DarkSurface = Color(0xFF1F2937)
+val DarkBorder = Color(0xFF374151)
+val DarkTextPrimary = Color(0xFFF9FAFB)
+val DarkTextSecondary = Color(0xFFD1D5DB)

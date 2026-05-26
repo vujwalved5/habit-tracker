@@ -25,6 +25,8 @@ class HabitRepositoryImpl(
                     icon = entity.icon,
                     frequency = entity.frequency,
                     reminderTime = entity.reminderTime,
+                    duration = entity.duration,
+                    category = entity.category,
                     createdAt = entity.createdAt,
                     completedDates = logs.filter { it.habitId == entity.id }.map { it.date }
                 )
@@ -63,6 +65,8 @@ class HabitRepositoryImpl(
                     icon = entity.icon,
                     frequency = entity.frequency,
                     reminderTime = entity.reminderTime,
+                    duration = entity.duration,
+                    category = entity.category,
                     isDoneToday = habitLogs.any { it.date == today },
                     createdAt = entity.createdAt,
                     completedDates = habitLogs.map { it.date }
@@ -78,7 +82,9 @@ class HabitRepositoryImpl(
                 name = habit.name,
                 icon = habit.icon,
                 frequency = habit.frequency,
-                reminderTime = habit.reminderTime
+                reminderTime = habit.reminderTime,
+                duration = habit.duration,
+                category = habit.category
             )
         )
     }
@@ -91,6 +97,8 @@ class HabitRepositoryImpl(
                 icon = entity.icon,
                 frequency = entity.frequency,
                 reminderTime = entity.reminderTime,
+                duration = entity.duration,
+                category = entity.category,
                 createdAt = entity.createdAt
             )
         }
@@ -103,7 +111,9 @@ class HabitRepositoryImpl(
                 name = habit.name,
                 icon = habit.icon,
                 frequency = habit.frequency,
-                reminderTime = habit.reminderTime
+                reminderTime = habit.reminderTime,
+                duration = habit.duration,
+                category = habit.category
             )
         )
     }
