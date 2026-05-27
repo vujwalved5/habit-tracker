@@ -60,8 +60,8 @@ fun HabitNavGraph() {
                     NavigationBar(
                         containerColor = MaterialTheme.colorScheme.surface,
                         tonalElevation = 0.dp,
+                        windowInsets = NavigationBarDefaults.windowInsets,
                         modifier = Modifier
-                            .height(64.dp)
                             .drawBehind {
                                 drawLine(
                                     color = outlineColor,
