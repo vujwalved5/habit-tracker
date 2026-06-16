@@ -29,7 +29,7 @@ import com.example.habittracker.ui.theme.*
 @Composable
 fun HomeScreen(
     onAddHabit: () -> Unit,
-    onHabitClick: (Long) -> Unit,
+    onHabitClick: (String) -> Unit,
     viewModel: HabitListViewModel = hiltViewModel()
 ) {
     val habits by viewModel.habits.collectAsState()
@@ -52,8 +52,8 @@ fun HomeScreenContent(
     longestStreak: Int,
     totalLogs: Int,
     onAddHabit: () -> Unit,
-    onHabitClick: (Long) -> Unit,
-    onToggleHabit: (Long) -> Unit
+    onHabitClick: (String) -> Unit,
+    onToggleHabit: (String) -> Unit
 ) {
     Scaffold(
         floatingActionButton = {
@@ -286,8 +286,8 @@ fun HomeScreenPreview() {
     WidgetTheme {
         HomeScreenContent(
             habits = listOf(
-                Habit(id = 1, name = "Morning Run", icon = "🏃", frequency = "Daily", reminderTime = "07:00", duration = 30, isDoneToday = false),
-                Habit(id = 2, name = "Read Book", icon = "📚", frequency = "Daily", reminderTime = "21:00", duration = 20, isDoneToday = true)
+                Habit(id = "1", name = "Morning Run", icon = "🏃", frequency = "Daily", reminderTime = "07:00", duration = 30, isDoneToday = false),
+                Habit(id = "2", name = "Read Book", icon = "📚", frequency = "Daily", reminderTime = "21:00", duration = 20, isDoneToday = true)
             ),
             longestStreak = 5,
             totalLogs = 12,

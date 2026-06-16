@@ -32,9 +32,9 @@ import com.example.habittracker.ui.theme.WidgetTheme
 
 @Composable
 fun HabitDetailScreen(
-    habitId: Long,
+    habitId: String,
     onBack: () -> Unit,
-    onEdit: (Long) -> Unit,
+    onEdit: (String) -> Unit,
     viewModel: HabitDetailViewModel = hiltViewModel()
 ) {
     val habit by viewModel.habit.collectAsState()
@@ -52,7 +52,7 @@ fun HabitDetailScreen(
 fun DetailScreenContent(
     habit: Habit?,
     onBack: () -> Unit,
-    onEdit: (Long) -> Unit,
+    onEdit: (String) -> Unit,
     onDelete: () -> Unit
 ) {
     Scaffold(
@@ -139,7 +139,7 @@ fun HabitDetailPreview() {
     WidgetTheme {
         DetailScreenContent(
             habit = Habit(
-                id = 1,
+                id = "1",
                 name = "Meditate",
                 icon = "🧘",
                 duration = 10,

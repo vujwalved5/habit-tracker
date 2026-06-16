@@ -37,7 +37,7 @@ interface WidgetEntryPoint {
 class HabitWidget : GlanceAppWidget() {
 
     companion object {
-        val habitIdKey = ActionParameters.Key<Long>("habitId")
+        val habitIdKey = ActionParameters.Key<String>("habitId")
     }
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {

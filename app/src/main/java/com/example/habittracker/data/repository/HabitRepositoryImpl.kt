@@ -1,19 +1,22 @@
 package com.example.habittracker.data.repository
 
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.habittracker.data.local.dao.DayCount
 import com.example.habittracker.data.local.dao.HabitDao
 import com.example.habittracker.data.local.entity.HabitEntity
 import com.example.habittracker.data.local.entity.HabitLogEntity
+import com.example.habittracker.data.sync.SyncWorker
 import com.example.habittracker.domain.model.Habit
 import com.example.habittracker.domain.repository.HabitRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 
 class HabitRepositoryImpl(
-    private val dao: HabitDao
+    private val dao: HabitDao,
+    private val workManager: WorkManager
 ) : HabitRepository {
 
     override fun getAllHabits(): Flow<List<Habit>> {
@@ -34,7 +37,7 @@ class HabitRepositoryImpl(
         }
     }
 
-    override fun getAllLogs(): Flow<Map<Long, List<String>>> {
+    override fun getAllLogs(): Flow<Map<String, List<String>>> {
         return dao.getAllLogs().map { logs ->
             logs.groupBy { it.habitId }.mapValues { entry ->
                 entry.value.map { it.date }
@@ -84,12 +87,15 @@ class HabitRepositoryImpl(
                 frequency = habit.frequency,
                 reminderTime = habit.reminderTime,
                 duration = habit.duration,
-                category = habit.category
+                category = habit.category,
+                createdAt = habit.createdAt,
+                isSynced = false
             )
         )
+        triggerSync()
     }
 
-    override suspend fun getHabitById(id: Long): Habit? {
+    override suspend fun getHabitById(id: String): Habit? {
         return dao.getHabitById(id)?.let { entity ->
             Habit(
                 id = entity.id,
@@ -105,31 +111,36 @@ class HabitRepositoryImpl(
     }
 
     override suspend fun deleteHabit(habit: Habit) {
-        dao.deleteHabit(
-            HabitEntity(
-                id = habit.id,
-                name = habit.name,
-                icon = habit.icon,
-                frequency = habit.frequency,
-                reminderTime = habit.reminderTime,
-                duration = habit.duration,
-                category = habit.category
-            )
-        )
+        dao.softDeleteHabit(habit.id)
+        triggerSync()
     }
 
     override suspend fun deleteAllHabits() {
         dao.deleteAllHabits()
         dao.deleteAllLogs()
+        triggerSync()
     }
 
-    override suspend fun toggleHabitDone(habitId: Long, date: String) {
-        val logs = dao.getLogsByDate(date).first()
-        val existingLog = logs.find { it.habitId == habitId }
+    override suspend fun toggleHabitDone(habitId: String, date: String) {
+        val existingLog = dao.getLogsByDate(habitId, date)
+        
         if (existingLog != null) {
-            dao.deleteLog(habitId, date)
+            if (existingLog.isDeleted) {
+                // Re-enable it (Upsert)
+                dao.insertLog(existingLog.copy(isDeleted = false, isSynced = false))
+            } else {
+                // Soft delete it
+                dao.softDeleteLog(habitId, date)
+            }
         } else {
-            dao.insertLog(HabitLogEntity(habitId = habitId, date = date))
+            // Create new
+            dao.insertLog(HabitLogEntity(habitId = habitId, date = date, isSynced = false))
         }
+        triggerSync()
+    }
+
+    private fun triggerSync() {
+        val syncRequest = OneTimeWorkRequestBuilder<SyncWorker>().build()
+        workManager.enqueue(syncRequest)
     }
 }

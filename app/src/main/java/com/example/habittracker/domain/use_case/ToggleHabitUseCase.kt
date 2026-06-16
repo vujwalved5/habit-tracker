@@ -7,7 +7,7 @@ import javax.inject.Inject
 class ToggleHabitUseCase @Inject constructor(
     private val repository: HabitRepository
 ) {
-    suspend operator fun invoke(habitId: Long) {
+    suspend operator fun invoke(habitId: String) {
         val today = LocalDate.now().toString()
         repository.toggleHabitDone(habitId, today)
     }

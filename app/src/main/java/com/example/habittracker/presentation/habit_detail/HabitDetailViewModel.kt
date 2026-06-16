@@ -18,7 +18,7 @@ class HabitDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val habitId: Long = savedStateHandle.get<Long>("habitId") ?: 0L
+    private val habitId: String = savedStateHandle.get<String>("habitId") ?: ""
 
     val habit: StateFlow<Habit?> = repository.getAllHabitsWithLogs()
         .map { habits -> habits.find { it.id == habitId } }

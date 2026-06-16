@@ -21,10 +21,10 @@ sealed class Screen {
     object Profile : Screen()
 
     @Serializable
-    data class AddEditHabit(val habitId: Long? = null) : Screen()
+    data class AddEditHabit(val habitId: String? = null) : Screen()
 
     @Serializable
-    data class HabitDetail(val habitId: Long) : Screen()
+    data class HabitDetail(val habitId: String) : Screen()
 
     @Serializable
     object Notifications : Screen()

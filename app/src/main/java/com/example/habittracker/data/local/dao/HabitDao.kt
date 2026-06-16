@@ -8,43 +8,49 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface HabitDao {
 
-    @Query("SELECT * FROM habits")
+    @Query("SELECT * FROM habits WHERE isDeleted = 0")
     fun getAllHabits(): Flow<List<HabitEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertHabit(habit: HabitEntity): Long
+    suspend fun insertHabit(habit: HabitEntity)
 
-    @Query("SELECT * FROM habits WHERE id = :id")
-    suspend fun getHabitById(id: Long): HabitEntity?
+    @Query("SELECT * FROM habits WHERE id = :id AND isDeleted = 0")
+    suspend fun getHabitById(id: String): HabitEntity?
+
+    @Query("UPDATE habits SET isDeleted = 1, isSynced = 0 WHERE id = :id")
+    suspend fun softDeleteHabit(id: String)
 
     @Delete
     suspend fun deleteHabit(habit: HabitEntity)
 
-    @Query("DELETE FROM habits")
+    @Query("UPDATE habits SET isDeleted = 1, isSynced = 0")
     suspend fun deleteAllHabits()
 
-    @Query("DELETE FROM habit_logs")
+    @Query("UPDATE habit_logs SET isDeleted = 1, isSynced = 0")
     suspend fun deleteAllLogs()
 
-    @Query("SELECT * FROM habit_logs WHERE habitId = :habitId")
-    fun getLogsForHabit(habitId: Long): Flow<List<HabitLogEntity>>
+    @Query("SELECT * FROM habit_logs WHERE habitId = :habitId AND isDeleted = 0")
+    fun getLogsForHabit(habitId: String): Flow<List<HabitLogEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLog(log: HabitLogEntity)
 
-    @Query("DELETE FROM habit_logs WHERE habitId = :habitId AND date = :date")
-    suspend fun deleteLog(habitId: Long, date: String)
+    @Query("UPDATE habit_logs SET isDeleted = 1, isSynced = 0 WHERE habitId = :habitId AND date = :date")
+    suspend fun softDeleteLog(habitId: String, date: String)
 
-    @Query("SELECT * FROM habit_logs WHERE date = :date")
+    @Query("SELECT * FROM habit_logs WHERE habitId = :habitId AND date = :date")
+    suspend fun getLogsByDate(habitId: String, date: String): HabitLogEntity?
+
+    @Query("SELECT * FROM habit_logs WHERE date = :date AND isDeleted = 0")
     fun getLogsByDate(date: String): Flow<List<HabitLogEntity>>
 
-    @Query("SELECT * FROM habit_logs")
+    @Query("SELECT * FROM habit_logs WHERE isDeleted = 0")
     fun getAllLogs(): Flow<List<HabitLogEntity>>
 
     @Query("""
         SELECT strftime('%Y-%m-%d', date) as day, COUNT(*) as count
         FROM habit_logs
-        WHERE date >= :startDate
+        WHERE date >= :startDate AND isDeleted = 0
         GROUP BY day
     """)
     fun getCompletionCountsForRange(startDate: String): Flow<List<DayCount>>
@@ -52,13 +58,25 @@ interface HabitDao {
     @Query("""
         SELECT strftime('%Y-%m-%d', date) as day, COUNT(*) as count
         FROM habit_logs
-        WHERE date BETWEEN :startDate AND :endDate
+        WHERE (date BETWEEN :startDate AND :endDate) AND isDeleted = 0
         GROUP BY day
     """)
     fun getWeeklyCompletions(startDate: String, endDate: String): Flow<List<DayCount>>
 
-    @Query("SELECT COUNT(*) FROM habit_logs")
+    @Query("SELECT COUNT(*) FROM habit_logs WHERE isDeleted = 0")
     suspend fun getTotalLogCount(): Int
+
+    @Query("SELECT * FROM habits WHERE isSynced = 0")
+    suspend fun getUnsyncedHabits(): List<HabitEntity>
+
+    @Query("SELECT * FROM habit_logs WHERE isSynced = 0")
+    suspend fun getUnsyncedLogs(): List<HabitLogEntity>
+
+    @Query("UPDATE habits SET isSynced = 1 WHERE id IN (:ids)")
+    suspend fun markHabitsSynced(ids: List<String>)
+
+    @Query("UPDATE habit_logs SET isSynced = 1 WHERE id IN (:ids)")
+    suspend fun markLogsSynced(ids: List<String>)
 }
 
 data class DayCount(val day: String, val count: Int)

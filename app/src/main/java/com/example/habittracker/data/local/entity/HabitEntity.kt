@@ -5,13 +5,15 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "habits")
 data class HabitEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
+    @PrimaryKey
+    val id: String,
     val name: String,
     val icon: String = "✨",
     val frequency: String, // e.g., "DAILY"
     val reminderTime: String?, // e.g., "08:00"
     val duration: Int = 10, // minutes
     val category: String? = null,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    val isSynced: Boolean = false,
+    val isDeleted: Boolean = false
 )

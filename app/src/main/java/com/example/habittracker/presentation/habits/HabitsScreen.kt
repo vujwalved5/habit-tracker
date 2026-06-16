@@ -26,8 +26,8 @@ import com.example.habittracker.ui.theme.*
 @Composable
 fun HabitsScreen(
     onAddHabit: () -> Unit,
-    onEditHabit: (Long) -> Unit,
-    onHabitClick: (Long) -> Unit,
+    onEditHabit: (String) -> Unit,
+    onHabitClick: (String) -> Unit,
     viewModel: HabitListViewModel = hiltViewModel()
 ) {
     val habits by viewModel.habits.collectAsState()

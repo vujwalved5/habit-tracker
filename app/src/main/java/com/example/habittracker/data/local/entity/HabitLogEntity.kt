@@ -18,8 +18,10 @@ import androidx.room.PrimaryKey
     indices = [Index(value = ["habitId"])]
 )
 data class HabitLogEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
-    val habitId: Long,
-    val date: String // ISO 8601 date string, e.g., "2024-05-20"
+    @PrimaryKey
+    val id: String = java.util.UUID.randomUUID().toString(),
+    val habitId: String,
+    val date: String, // ISO 8601 date string, e.g., "2024-05-20"
+    val isSynced: Boolean = false,
+    val isDeleted: Boolean = false
 )

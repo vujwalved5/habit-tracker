@@ -1,7 +1,7 @@
 package com.example.habittracker.domain.model
 
 data class Habit(
-    val id: Long = 0,
+    val id: String = java.util.UUID.randomUUID().toString(),
     val name: String,
     val icon: String = "✨",
     val frequency: String,

@@ -21,7 +21,7 @@ class AddHabitViewModel @Inject constructor(
     private val reminderManager: HabitReminderManager
 ) : ViewModel() {
 
-    var habitId by mutableStateOf<Long?>(null)
+    var habitId by mutableStateOf<String?>(null)
         private set
 
     var habitName by mutableStateOf("")
@@ -42,7 +42,7 @@ class AddHabitViewModel @Inject constructor(
     var category by mutableStateOf<String?>(null)
         private set
 
-    fun loadHabit(id: Long) {
+    fun loadHabit(id: String) {
         viewModelScope.launch {
             getHabitByIdUseCase(id)?.let { habit ->
                 habitId = habit.id
@@ -85,7 +85,7 @@ class AddHabitViewModel @Inject constructor(
         
         viewModelScope.launch {
             saveHabitUseCase(
-                id = habitId ?: 0,
+                id = habitId,
                 name = habitName,
                 icon = icon,
                 frequency = frequency,

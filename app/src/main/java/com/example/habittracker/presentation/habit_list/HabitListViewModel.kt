@@ -44,7 +44,7 @@ class HabitListViewModel @Inject constructor(
     val weeklyData = getWeeklyCompletionsUseCase()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
 
-    fun onToggleHabit(habitId: Long) {
+    fun onToggleHabit(habitId: String) {
         viewModelScope.launch {
             toggleHabitUseCase(habitId)
         }

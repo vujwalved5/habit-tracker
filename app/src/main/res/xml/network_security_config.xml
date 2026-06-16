@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- H7: Explicitly disallow cleartext (HTTP) traffic for all domains.
+         Only HTTPS connections are permitted. -->
+    <base-config cleartextTrafficPermitted="false" />
+</network-security-config>

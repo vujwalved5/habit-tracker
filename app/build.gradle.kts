@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -18,11 +20,25 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // H3: Read Cloudflare Worker URL from local.properties so it's never in source control
+        val localProperties = Properties()
+        val localPropsFile = rootProject.file("local.properties")
+        if (localPropsFile.exists()) {
+            localPropsFile.inputStream().use { localProperties.load(it) }
+        }
+        val cloudflareBaseUrl = localProperties.getProperty(
+            "CLOUDFLARE_BASE_URL",
+            "https://your-worker.workers.dev"
+        )
+        buildConfigField("String", "CLOUDFLARE_BASE_URL", "\"$cloudflareBaseUrl\"")
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // H6: Enable R8 code shrinking + resource shrinking for release
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -35,6 +51,8 @@ android {
     }
     buildFeatures {
         compose = true
+        // H3: Enable BuildConfig generation so CLOUDFLARE_BASE_URL is available at runtime
+        buildConfig = true
     }
 }
 
@@ -71,6 +89,16 @@ dependencies {
 
     // Serialization
     implementation(libs.kotlinx.serialization.json)
+
+    // Retrofit & OkHttp
+    implementation(libs.retrofit.core)
+    implementation(libs.retrofit.kotlin.serialization)
+    implementation(libs.okhttp.logging)
+
+    // WorkManager
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.hilt.work)
+    ksp(libs.androidx.hilt.compiler)
 
     // Konfetti
     implementation(libs.konfetti.compose)

@@ -26,7 +26,7 @@ import java.util.Locale
 
 @Composable
 fun AddHabitScreen(
-    habitId: Long? = null,
+    habitId: String? = null,
     onBack: () -> Unit,
     viewModel: AddHabitViewModel = hiltViewModel()
 ) {
@@ -55,7 +55,7 @@ fun AddHabitScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddHabitContent(
-    habitId: Long? = null,
+    habitId: String? = null,
     habitName: String,
     icon: String,
     duration: Int,
