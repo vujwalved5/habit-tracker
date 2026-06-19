@@ -22,6 +22,7 @@ data class HabitLogEntity(
     val id: String = java.util.UUID.randomUUID().toString(),
     val habitId: String,
     val date: String, // ISO 8601 date string, e.g., "2024-05-20"
+    val updatedAt: Long = System.currentTimeMillis(),
     val isSynced: Boolean = false,
     val isDeleted: Boolean = false
 )

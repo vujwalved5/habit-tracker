@@ -12,5 +12,6 @@ data class HabitDto(
     val duration: Int,
     val category: String?,
     val createdAt: Long,
+    val updatedAt: Long,
     val isDeleted: Boolean
 )

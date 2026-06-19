@@ -12,6 +12,9 @@ interface HabitApi {
     @GET("/api/habits")
     suspend fun fetchAllHabits(): List<HabitDto>
 
+    @GET("/api/logs")
+    suspend fun fetchAllLogs(): List<HabitLogDto>
+
     // TODO: Backend must process isDeleted=true payloads and delete them in D1
     @POST("/api/sync/habits")
     suspend fun pushHabits(@Body habits: List<HabitDto>)

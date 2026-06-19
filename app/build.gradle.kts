@@ -32,6 +32,13 @@ android {
             "https://your-worker.workers.dev"
         )
         buildConfigField("String", "CLOUDFLARE_BASE_URL", "\"$cloudflareBaseUrl\"")
+
+        // H1: API key for Bearer token auth against the Cloudflare Worker
+        val cloudflareApiKey = localProperties.getProperty(
+            "CLOUDFLARE_API_KEY",
+            ""
+        )
+        buildConfigField("String", "CLOUDFLARE_API_KEY", "\"$cloudflareApiKey\"")
     }
 
     buildTypes {

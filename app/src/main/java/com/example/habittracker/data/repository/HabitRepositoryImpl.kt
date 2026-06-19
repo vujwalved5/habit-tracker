@@ -89,6 +89,7 @@ class HabitRepositoryImpl(
                 duration = habit.duration,
                 category = habit.category,
                 createdAt = habit.createdAt,
+                updatedAt = System.currentTimeMillis(),
                 isSynced = false
             )
         )
@@ -111,13 +112,14 @@ class HabitRepositoryImpl(
     }
 
     override suspend fun deleteHabit(habit: Habit) {
-        dao.softDeleteHabit(habit.id)
+        dao.softDeleteHabit(habit.id, System.currentTimeMillis())
         triggerSync()
     }
 
     override suspend fun deleteAllHabits() {
-        dao.deleteAllHabits()
-        dao.deleteAllLogs()
+        val now = System.currentTimeMillis()
+        dao.deleteAllHabits(now)
+        dao.deleteAllLogs(now)
         triggerSync()
     }
 
@@ -127,15 +129,19 @@ class HabitRepositoryImpl(
         if (existingLog != null) {
             if (existingLog.isDeleted) {
                 // Re-enable it (Upsert)
-                dao.insertLog(existingLog.copy(isDeleted = false, isSynced = false))
+                dao.insertLog(existingLog.copy(isDeleted = false, isSynced = false, updatedAt = System.currentTimeMillis()))
             } else {
                 // Soft delete it
-                dao.softDeleteLog(habitId, date)
+                dao.softDeleteLog(habitId, date, System.currentTimeMillis())
             }
         } else {
             // Create new
-            dao.insertLog(HabitLogEntity(habitId = habitId, date = date, isSynced = false))
+            dao.insertLog(HabitLogEntity(habitId = habitId, date = date, isSynced = false, updatedAt = System.currentTimeMillis()))
         }
+        triggerSync()
+    }
+
+    override suspend fun sync() {
         triggerSync()
     }
 

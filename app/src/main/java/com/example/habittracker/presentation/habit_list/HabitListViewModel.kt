@@ -19,8 +19,12 @@ class HabitListViewModel @Inject constructor(
     private val getLongestStreakUseCase: GetLongestStreakUseCase,
     private val getCompletionRateUseCase: GetCompletionRateUseCase,
     private val getHeatmapDataUseCase: GetHeatmapDataUseCase,
-    private val getWeeklyCompletionsUseCase: GetWeeklyCompletionsUseCase
+    private val getWeeklyCompletionsUseCase: GetWeeklyCompletionsUseCase,
+    private val syncHabitsUseCase: SyncHabitsUseCase
 ) : ViewModel() {
+
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing = _isRefreshing.asStateFlow()
 
     val habits: StateFlow<List<Habit>> = getHabitsUseCase()
         .stateIn(
@@ -59,6 +63,18 @@ class HabitListViewModel @Inject constructor(
     fun addHabit(habit: Habit) {
         viewModelScope.launch {
             saveHabitUseCase(habit)
+        }
+    }
+
+    fun refresh() {
+        viewModelScope.launch {
+            _isRefreshing.value = true
+            syncHabitsUseCase()
+            // We give it a small delay so the user sees the refresh indicator, 
+            // and we might want to wait for WorkManager but WorkManager is async.
+            // Ideally we'd observe the WorkInfo, but for now a simple trigger is fine.
+            kotlinx.coroutines.delay(1000)
+            _isRefreshing.value = false
         }
     }
 }

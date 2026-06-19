@@ -14,6 +14,7 @@ data class HabitEntity(
     val duration: Int = 10, // minutes
     val category: String? = null,
     val createdAt: Long = System.currentTimeMillis(),
+    val updatedAt: Long = System.currentTimeMillis(),
     val isSynced: Boolean = false,
     val isDeleted: Boolean = false
 )

@@ -17,17 +17,17 @@ interface HabitDao {
     @Query("SELECT * FROM habits WHERE id = :id AND isDeleted = 0")
     suspend fun getHabitById(id: String): HabitEntity?
 
-    @Query("UPDATE habits SET isDeleted = 1, isSynced = 0 WHERE id = :id")
-    suspend fun softDeleteHabit(id: String)
+    @Query("UPDATE habits SET isDeleted = 1, isSynced = 0, updatedAt = :updatedAt WHERE id = :id")
+    suspend fun softDeleteHabit(id: String, updatedAt: Long)
 
     @Delete
     suspend fun deleteHabit(habit: HabitEntity)
 
-    @Query("UPDATE habits SET isDeleted = 1, isSynced = 0")
-    suspend fun deleteAllHabits()
+    @Query("UPDATE habits SET isDeleted = 1, isSynced = 0, updatedAt = :updatedAt")
+    suspend fun deleteAllHabits(updatedAt: Long)
 
-    @Query("UPDATE habit_logs SET isDeleted = 1, isSynced = 0")
-    suspend fun deleteAllLogs()
+    @Query("UPDATE habit_logs SET isDeleted = 1, isSynced = 0, updatedAt = :updatedAt")
+    suspend fun deleteAllLogs(updatedAt: Long)
 
     @Query("SELECT * FROM habit_logs WHERE habitId = :habitId AND isDeleted = 0")
     fun getLogsForHabit(habitId: String): Flow<List<HabitLogEntity>>
@@ -35,11 +35,14 @@ interface HabitDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLog(log: HabitLogEntity)
 
-    @Query("UPDATE habit_logs SET isDeleted = 1, isSynced = 0 WHERE habitId = :habitId AND date = :date")
-    suspend fun softDeleteLog(habitId: String, date: String)
+    @Query("UPDATE habit_logs SET isDeleted = 1, isSynced = 0, updatedAt = :updatedAt WHERE habitId = :habitId AND date = :date")
+    suspend fun softDeleteLog(habitId: String, date: String, updatedAt: Long)
 
     @Query("SELECT * FROM habit_logs WHERE habitId = :habitId AND date = :date")
     suspend fun getLogsByDate(habitId: String, date: String): HabitLogEntity?
+
+    @Query("SELECT * FROM habit_logs WHERE id = :id")
+    suspend fun getLogById(id: String): HabitLogEntity?
 
     @Query("SELECT * FROM habit_logs WHERE date = :date AND isDeleted = 0")
     fun getLogsByDate(date: String): Flow<List<HabitLogEntity>>

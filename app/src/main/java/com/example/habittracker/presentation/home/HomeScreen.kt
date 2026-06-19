@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,22 +36,28 @@ fun HomeScreen(
     val habits by viewModel.habits.collectAsState()
     val longestStreak by viewModel.longestStreak.collectAsState()
     val totalLogs by viewModel.totalCompletions.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
 
     HomeScreenContent(
         habits = habits,
         longestStreak = longestStreak,
         totalLogs = totalLogs,
+        isRefreshing = isRefreshing,
+        onRefresh = viewModel::refresh,
         onAddHabit = onAddHabit,
         onHabitClick = onHabitClick,
         onToggleHabit = viewModel::onToggleHabit
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenContent(
     habits: List<Habit>,
     longestStreak: Int,
     totalLogs: Int,
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit,
     onAddHabit: () -> Unit,
     onHabitClick: (String) -> Unit,
     onToggleHabit: (String) -> Unit
@@ -67,48 +74,54 @@ fun HomeScreenContent(
             }
         }
     ) { padding ->
-        LazyColumn(
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = onRefresh,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = padding.calculateBottomPadding()),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .padding(bottom = padding.calculateBottomPadding())
         ) {
-            item {
-                HomeHeader()
-            }
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                item {
+                    HomeHeader()
+                }
 
-            item {
-                StatsGrid(
-                    streak = longestStreak,
-                    progress = "${habits.count { it.isDoneToday }}/${habits.size}",
-                    total = totalLogs
-                )
-            }
+                item {
+                    StatsGrid(
+                        streak = longestStreak,
+                        progress = "${habits.count { it.isDoneToday }}/${habits.size}",
+                        total = totalLogs
+                    )
+                }
 
-            item {
-                TodayChallengeCard(
-                    streak = longestStreak
-                )
-            }
+                item {
+                    TodayChallengeCard(
+                        streak = longestStreak
+                    )
+                }
 
-            item {
-                Text(
-                    text = "Active Habits",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                )
-            }
+                item {
+                    Text(
+                        text = "Active Habits",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    )
+                }
 
-            items(habits) { habit ->
-                HabitItem(
-                    habit = habit,
-                    onToggle = { onToggleHabit(habit.id) },
-                    onClick = { onHabitClick(habit.id) }
-                )
-            }
+                items(habits) { habit ->
+                    HabitItem(
+                        habit = habit,
+                        onToggle = { onToggleHabit(habit.id) },
+                        onClick = { onHabitClick(habit.id) }
+                    )
+                }
 
-            item {
-                Spacer(modifier = Modifier.height(80.dp))
+                item {
+                    Spacer(modifier = Modifier.height(80.dp))
+                }
             }
         }
     }
@@ -291,6 +304,8 @@ fun HomeScreenPreview() {
             ),
             longestStreak = 5,
             totalLogs = 12,
+            isRefreshing = false,
+            onRefresh = {},
             onAddHabit = {},
             onHabitClick = {},
             onToggleHabit = {}

@@ -7,5 +7,6 @@ data class HabitLogDto(
     val id: String,
     val habitId: String,
     val date: String,
+    val updatedAt: Long,
     val isDeleted: Boolean
 )

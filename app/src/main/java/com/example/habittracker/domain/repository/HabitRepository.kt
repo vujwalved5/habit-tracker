@@ -16,4 +16,5 @@ interface HabitRepository {
     suspend fun deleteHabit(habit: Habit)
     suspend fun deleteAllHabits()
     suspend fun toggleHabitDone(habitId: String, date: String)
+    suspend fun sync()
 }

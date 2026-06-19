@@ -49,6 +49,13 @@ object AppModule {
         // H5: Explicit timeouts prevent indefinite hangs from slow/malicious servers.
         val client = OkHttpClient.Builder()
             .addInterceptor(logging)
+            // H1: Attach Bearer token auth header to every outgoing request
+            .addInterceptor { chain ->
+                val request = chain.request().newBuilder()
+                    .addHeader("Authorization", "Bearer ${BuildConfig.CLOUDFLARE_API_KEY}")
+                    .build()
+                chain.proceed(request)
+            }
             .connectTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
             .readTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
             .writeTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
