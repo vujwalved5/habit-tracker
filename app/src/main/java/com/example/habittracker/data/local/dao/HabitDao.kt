@@ -32,6 +32,12 @@ interface HabitDao {
     @Query("SELECT * FROM habit_logs WHERE habitId = :habitId AND isDeleted = 0")
     fun getLogsForHabit(habitId: String): Flow<List<HabitLogEntity>>
 
+    @Query("SELECT * FROM habit_logs WHERE habitId = :habitId AND date >= :sinceDate AND isDeleted = 0 ORDER BY date DESC")
+    fun getRecentLogsForHabit(habitId: String, sinceDate: String): Flow<List<HabitLogEntity>>
+
+    @Query("SELECT * FROM habit_logs WHERE habitId = :habitId AND isDeleted = 0 ORDER BY date DESC LIMIT 7")
+    fun getTopRecentLogsForHabit(habitId: String): Flow<List<HabitLogEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLog(log: HabitLogEntity)
 
@@ -69,6 +75,20 @@ interface HabitDao {
     @Query("SELECT COUNT(*) FROM habit_logs WHERE isDeleted = 0")
     suspend fun getTotalLogCount(): Int
 
+    @Query("SELECT COUNT(*) FROM habit_logs WHERE isDeleted = 0")
+    fun getTotalLogCountFlow(): Flow<Int>
+
+    @Query("""
+        SELECT h.id, h.name, h.icon,
+               EXISTS(SELECT 1 FROM habit_logs l WHERE l.habitId = h.id AND l.date = :today AND l.isDeleted = 0) as isDoneToday
+        FROM habits h
+        WHERE h.isDeleted = 0
+    """)
+    fun getWidgetHabits(today: String): Flow<List<WidgetHabitResult>>
+
+    @Query("SELECT * FROM habit_logs WHERE date >= :sinceDate AND isDeleted = 0 ORDER BY date DESC")
+    fun getRecentLogs(sinceDate: String): Flow<List<HabitLogEntity>>
+
     @Query("SELECT * FROM habits WHERE isSynced = 0")
     suspend fun getUnsyncedHabits(): List<HabitEntity>
 
@@ -83,3 +103,10 @@ interface HabitDao {
 }
 
 data class DayCount(val day: String, val count: Int)
+
+data class WidgetHabitResult(
+    val id: String,
+    val name: String,
+    val icon: String,
+    val isDoneToday: Boolean
+)

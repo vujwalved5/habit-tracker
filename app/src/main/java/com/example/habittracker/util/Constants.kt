@@ -6,4 +6,5 @@ object Constants {
     // H3: URL is now sourced from BuildConfig (injected from local.properties)
     // instead of being hardcoded in source code.
     val CLOUDFLARE_BASE_URL: String = BuildConfig.CLOUDFLARE_BASE_URL
+    const val STREAK_WINDOW_DAYS = 400L
 }

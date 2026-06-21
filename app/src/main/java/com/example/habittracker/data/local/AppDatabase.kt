@@ -8,7 +8,7 @@ import com.example.habittracker.data.local.entity.HabitLogEntity
 
 @Database(
     entities = [HabitEntity::class, HabitLogEntity::class],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

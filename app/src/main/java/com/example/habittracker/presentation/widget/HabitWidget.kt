@@ -47,7 +47,7 @@ class HabitWidget : GlanceAppWidget() {
         ).habitRepository()
 
         provideContent {
-            val habits by repository.getAllHabitsWithLogs().collectAsState(initial = emptyList())
+            val habits by repository.getWidgetHabits().collectAsState(initial = emptyList())
             WidgetContent(habits)
         }
     }

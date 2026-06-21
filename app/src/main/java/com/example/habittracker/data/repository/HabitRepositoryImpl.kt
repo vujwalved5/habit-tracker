@@ -20,7 +20,7 @@ class HabitRepositoryImpl(
 ) : HabitRepository {
 
     override fun getAllHabits(): Flow<List<Habit>> {
-        return combine(dao.getAllHabits(), dao.getAllLogs()) { entities, logs ->
+        return dao.getAllHabits().map { entities ->
             entities.map { entity ->
                 Habit(
                     id = entity.id,
@@ -31,7 +31,7 @@ class HabitRepositoryImpl(
                     duration = entity.duration,
                     category = entity.category,
                     createdAt = entity.createdAt,
-                    completedDates = logs.filter { it.habitId == entity.id }.map { it.date }
+                    completedDates = emptyList()
                 )
             }
         }
@@ -45,6 +45,18 @@ class HabitRepositoryImpl(
         }
     }
 
+    override fun getRecentLogsForHabit(habitId: String, sinceDate: String): Flow<List<String>> {
+        return dao.getRecentLogsForHabit(habitId, sinceDate).map { logs ->
+            logs.map { it.date }
+        }
+    }
+
+    override fun getTopRecentLogsForHabit(habitId: String): Flow<List<String>> {
+        return dao.getTopRecentLogsForHabit(habitId).map { logs ->
+            logs.map { it.date }
+        }
+    }
+
     override fun getCompletionCountsForRange(startDate: String): Flow<List<DayCount>> {
         return dao.getCompletionCountsForRange(startDate)
     }
@@ -55,6 +67,10 @@ class HabitRepositoryImpl(
 
     override suspend fun getTotalLogCount(): Int {
         return dao.getTotalLogCount()
+    }
+
+    override fun getTotalLogCountFlow(): Flow<Int> {
+        return dao.getTotalLogCountFlow()
     }
 
     override fun getAllHabitsWithLogs(): Flow<List<Habit>> {
@@ -73,6 +89,48 @@ class HabitRepositoryImpl(
                     isDoneToday = habitLogs.any { it.date == today },
                     createdAt = entity.createdAt,
                     completedDates = habitLogs.map { it.date }
+                )
+            }
+        }
+    }
+
+    override fun getWidgetHabits(): Flow<List<Habit>> {
+        val today = LocalDate.now().toString()
+        val sinceDate = LocalDate.now().minusDays(com.example.habittracker.util.Constants.STREAK_WINDOW_DAYS).toString()
+        
+        return combine(
+            dao.getWidgetHabits(today),
+            dao.getRecentLogs(sinceDate)
+        ) { habits, logs ->
+            habits.map { wh ->
+                val habitLogs = logs.filter { it.habitId == wh.id }.map { it.date }
+                
+                // Kotlin streak calc equivalent to CalculateStreakUseCase
+                val sortedDates = habitLogs.map { LocalDate.parse(it) }.distinct().sortedDescending()
+                var maxStreak = 0
+                var currentStreak = 0
+                var expectedDate: LocalDate? = null
+
+                for (date in sortedDates) {
+                    if (expectedDate == null || date == expectedDate) {
+                        currentStreak++
+                        expectedDate = date.minusDays(1)
+                    } else {
+                        if (currentStreak > maxStreak) maxStreak = currentStreak
+                        currentStreak = 1
+                        expectedDate = date.minusDays(1)
+                    }
+                }
+                if (currentStreak > maxStreak) maxStreak = currentStreak
+                
+                Habit(
+                    id = wh.id,
+                    name = wh.name,
+                    icon = wh.icon,
+                    frequency = "",
+                    reminderTime = null,
+                    isDoneToday = wh.isDoneToday,
+                    currentStreak = maxStreak
                 )
             }
         }

@@ -38,9 +38,11 @@ fun HabitDetailScreen(
     viewModel: HabitDetailViewModel = hiltViewModel()
 ) {
     val habit by viewModel.habit.collectAsState()
+    val recentActivity by viewModel.recentActivity.collectAsState()
 
     DetailScreenContent(
         habit = habit,
+        recentActivity = recentActivity,
         onBack = onBack,
         onEdit = onEdit,
         onDelete = { viewModel.deleteHabit(onDeleted = onBack) }
@@ -51,6 +53,7 @@ fun HabitDetailScreen(
 @Composable
 fun DetailScreenContent(
     habit: Habit?,
+    recentActivity: List<String>,
     onBack: () -> Unit,
     onEdit: (String) -> Unit,
     onDelete: () -> Unit
@@ -93,7 +96,7 @@ fun DetailScreenContent(
                     )
                 }
 
-                items(h.completedDates.sortedDescending().take(7)) { date ->
+                items(recentActivity, key = { it }) { date ->
                     ActivityItem(date = date, isCompleted = true)
                 }
                 
@@ -148,6 +151,7 @@ fun HabitDetailPreview() {
                 isDoneToday = true,
                 completedDates = listOf("2024-05-26", "2024-05-25")
             ),
+            recentActivity = listOf("2024-05-26", "2024-05-25"),
             onBack = {},
             onEdit = {},
             onDelete = {}

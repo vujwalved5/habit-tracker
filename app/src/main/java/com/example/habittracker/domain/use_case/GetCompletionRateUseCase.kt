@@ -10,7 +10,7 @@ class GetCompletionRateUseCase @Inject constructor(
     private val repository: HabitRepository
 ) {
     operator fun invoke(): Flow<Float> {
-        return combine(repository.getAllHabits(), repository.getAllLogs()) { habits, logs ->
+        return combine(repository.getAllHabits(), repository.getTotalLogCountFlow()) { habits, totalCompleted ->
             if (habits.isEmpty()) return@combine 0f
             
             val totalPossible = habits.sumOf { habit ->
@@ -21,8 +21,6 @@ class GetCompletionRateUseCase @Inject constructor(
                     else -> DateUtils.daysSinceCreated(habit.createdAt)
                 }
             }
-            
-            val totalCompleted = logs.values.sumOf { it.size }
             
             if (totalPossible == 0) 0f else (totalCompleted.toFloat() / totalPossible.toFloat()).coerceIn(0f, 1f)
         }

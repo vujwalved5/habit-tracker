@@ -111,7 +111,7 @@ fun HomeScreenContent(
                     )
                 }
 
-                items(habits) { habit ->
+                items(habits, key = { it.id }) { habit ->
                     HabitItem(
                         habit = habit,
                         onToggle = { onToggleHabit(habit.id) },

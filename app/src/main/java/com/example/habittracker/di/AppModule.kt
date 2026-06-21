@@ -88,6 +88,7 @@ object AppModule {
             AppDatabase::class.java,
             AppDatabase.DATABASE_NAME
         ).enableMultiInstanceInvalidation()
+            .addMigrations(com.example.habittracker.data.local.MIGRATION_4_5)
             .fallbackToDestructiveMigration()
             .build()
     }

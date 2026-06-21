@@ -24,6 +24,9 @@ class HabitDetailViewModel @Inject constructor(
         .map { habits -> habits.find { it.id == habitId } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
+    val recentActivity: StateFlow<List<String>> = repository.getTopRecentLogsForHabit(habitId)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     fun deleteHabit(onDeleted: () -> Unit) {
         viewModelScope.launch {
             habit.value?.let {

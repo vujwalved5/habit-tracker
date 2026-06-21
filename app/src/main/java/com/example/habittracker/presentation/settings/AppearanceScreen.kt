@@ -84,7 +84,7 @@ fun AppearanceScreen(
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    items(themeColors) { color ->
+                    items(themeColors, key = { it.value.toULong() }) { color ->
                         Box(
                             modifier = Modifier
                                 .size(48.dp)
