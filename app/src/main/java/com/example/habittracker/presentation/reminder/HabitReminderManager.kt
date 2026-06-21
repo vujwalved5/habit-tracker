@@ -14,7 +14,7 @@ import javax.inject.Singleton
 class HabitReminderManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    fun scheduleReminder(habitName: String, time: String) {
+    fun scheduleReminder(habitId: String, habitName: String, time: String) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -25,11 +25,13 @@ class HabitReminderManager @Inject constructor(
         }
         val intent = Intent(context, HabitReminderReceiver::class.java).apply {
             putExtra("HABIT_NAME", habitName)
+            putExtra("HABIT_ID", habitId)
         }
 
+        val requestCode = habitId.hashCode()
         val pendingIntent = PendingIntent.getBroadcast(
             context,
-            habitName.hashCode(),
+            requestCode,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )

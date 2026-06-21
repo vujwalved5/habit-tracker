@@ -10,6 +10,7 @@ import com.example.habittracker.R
 class HabitReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val habitName = intent.getStringExtra("HABIT_NAME") ?: "Habit"
+        val habitId = intent.getStringExtra("HABIT_ID") ?: habitName
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         val notification = NotificationCompat.Builder(context, "habit_reminders")
@@ -20,6 +21,6 @@ class HabitReminderReceiver : BroadcastReceiver() {
             .setAutoCancel(true)
             .build()
 
-        notificationManager.notify(habitName.hashCode(), notification)
+        notificationManager.notify(habitId.hashCode(), notification)
     }
 }

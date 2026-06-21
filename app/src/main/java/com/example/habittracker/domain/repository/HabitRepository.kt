@@ -17,4 +17,8 @@ interface HabitRepository {
     suspend fun deleteAllHabits()
     suspend fun toggleHabitDone(habitId: String, date: String)
     suspend fun sync()
+    fun getRecentLogsForHabit(habitId: String, sinceDate: String): Flow<List<String>>
+    fun getTotalLogCountFlow(): Flow<Int>
+    fun getWidgetHabits(): Flow<List<Habit>>
+    fun getRecentDatesForHabit(habitId: String, limit: Int): Flow<List<String>>
 }
