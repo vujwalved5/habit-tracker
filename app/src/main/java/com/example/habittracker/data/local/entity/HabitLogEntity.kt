@@ -15,7 +15,7 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index(value = ["habitId", "date"])]
+    indices = [Index(value = ["habitId"])]
 )
 data class HabitLogEntity(
     @PrimaryKey

@@ -84,10 +84,8 @@ class AddHabitViewModel @Inject constructor(
         if (habitName.isBlank()) return
         
         viewModelScope.launch {
-            // Generate a stable ID upfront so we can use it for the reminder request code
-            val id = habitId ?: java.util.UUID.randomUUID().toString()
             saveHabitUseCase(
-                id = id,
+                id = habitId,
                 name = habitName,
                 icon = icon,
                 frequency = frequency,
@@ -96,7 +94,7 @@ class AddHabitViewModel @Inject constructor(
                 category = category
             )
             reminderTime?.let {
-                reminderManager.scheduleReminder(id, habitName, it)
+                reminderManager.scheduleReminder(habitName, it)
             }
             onSaved()
         }

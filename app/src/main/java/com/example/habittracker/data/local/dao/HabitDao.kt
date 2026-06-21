@@ -80,30 +80,6 @@ interface HabitDao {
 
     @Query("UPDATE habit_logs SET isSynced = 1 WHERE id IN (:ids)")
     suspend fun markLogsSynced(ids: List<String>)
-
-    @Query("SELECT * FROM habit_logs WHERE habitId = :habitId AND date >= :sinceDate AND isDeleted = 0 ORDER BY date DESC")
-    fun getRecentLogsForHabit(habitId: String, sinceDate: String): Flow<List<HabitLogEntity>>
-
-    @Query("SELECT COUNT(*) FROM habit_logs WHERE isDeleted = 0")
-    fun getTotalLogCountFlow(): Flow<Int>
-
-    @Query("""
-        SELECT h.id, h.name, h.icon,
-               EXISTS(SELECT 1 FROM habit_logs WHERE habitId = h.id AND date = :today AND isDeleted = 0) AS isDoneToday
-        FROM habits h
-        WHERE h.isDeleted = 0
-    """)
-    fun getWidgetHabits(today: String): Flow<List<WidgetHabitRow>>
-
-    @Query("SELECT date FROM habit_logs WHERE habitId = :habitId AND isDeleted = 0 ORDER BY date DESC LIMIT :limit")
-    fun getRecentDatesForHabit(habitId: String, limit: Int): Flow<List<String>>
 }
 
 data class DayCount(val day: String, val count: Int)
-
-data class WidgetHabitRow(
-    val id: String,
-    val name: String,
-    val icon: String,
-    val isDoneToday: Boolean
-)

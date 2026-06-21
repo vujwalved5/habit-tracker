@@ -60,7 +60,7 @@ fun HabitsScreen(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(habits, key = { it.id }) { habit ->
+                items(habits) { habit ->
                     HabitListRow(
                         habit = habit,
                         onClick = { onHabitClick(habit.id) },
